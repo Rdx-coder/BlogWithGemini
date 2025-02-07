@@ -19,7 +19,7 @@ const App = () => {
     const fetchTrends = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/trends?limit=5`);
+            const response = await axios.get(`https://blogwithgemini.onrender.com/trends?limit=5`);
             if (Array.isArray(response.data) && response.data.length > 0) {
                 // ✅ Append new trends without duplicates
                 setTrends((prevTrends) => {
