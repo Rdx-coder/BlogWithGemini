@@ -11,12 +11,39 @@ app.use(cors());
 app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+const articleCache = new Map(); // ✅ Cache to avoid repeated AI requests
 
-// ✅ Cache to prevent unnecessary AI requests
-const articleCache = new Map();
+// ✅ Function to Parse Google Trends RSS Feed & Extract Related Keywords
+const parseTrends = async (xmlData) => {
+    const parser = new xml2js.Parser({ explicitArray: false });
 
-// ✅ Generate a Fully Structured Article
-async function generateFullArticle(title) {
+    try {
+        const result = await parser.parseStringPromise(xmlData);
+        const items = result.rss.channel.item;
+
+        if (!items || !Array.isArray(items)) {
+            throw new Error("Invalid XML format");
+        }
+
+        return items.map((item) => ({
+            title: item.title || "No Title",
+            link: item.link || "#",
+            image: item["ht:picture"] || "",
+            source: item["ht:picture_source"] || "Unknown Source",
+            relatedKeywords: item["ht:news_item"]
+                ? Array.isArray(item["ht:news_item"])
+                    ? item["ht:news_item"].map((newsItem) => newsItem["ht:news_item_title"] || "").filter(Boolean)
+                    : []
+                : [],
+        }));
+    } catch (error) {
+        console.error("❌ Error parsing XML:", error);
+        return [];
+    }
+};
+
+// ✅ Generate Full SEO Blog Article using AI
+async function generateFullArticle(title, relatedKeywords) {
     if (articleCache.has(title)) {
         console.log(`📝 Using cached article for: ${title}`);
         return articleCache.get(title);
@@ -30,10 +57,10 @@ async function generateFullArticle(title) {
             contents: [{ 
                 role: "user", 
                 parts: [{ text: `
-                    Write a **high-quality, structured blog article** about "${title}" in **HTML format** with embedded CSS styles.
-                    
-                    The article must be beautifully formatted with proper spacing, modern typography, and a professional layout.
-                    
+                    Write a **SEO-friendly structured blog article** about "${title}".
+                    Optimize for search engines by naturally incorporating these keywords: ${relatedKeywords.join(", ")}.
+                    Format the response in clean **HTML structure** with **modern CSS styles**.
+
                     <article style="background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); max-width: 900px; margin: auto; font-family: 'Arial', sans-serif; line-height: 1.8;">
                     
                         <style>
@@ -45,7 +72,7 @@ async function generateFullArticle(title) {
                                 text-align: center;
                                 text-transform: capitalize;
                             }
-                            .introduction, .key-insights, .detailed-analysis, .real-world-impact, .conclusion {
+                            .section {
                                 margin-top: 25px;
                                 padding: 20px;
                                 border-left: 5px solid #0078ff;
@@ -72,54 +99,37 @@ async function generateFullArticle(title) {
                                 color: #555;
                                 margin-bottom: 10px;
                             }
-                            blockquote {
-                                font-size: 20px;
-                                font-style: italic;
-                                color: #666;
-                                border-left: 5px solid #0078ff;
-                                padding-left: 15px;
-                                margin: 20px 0;
-                            }
-                            img {
-                                width: 100%;
-                                max-height: 400px;
-                                object-fit: cover;
-                                border-radius: 10px;
-                                margin-top: 15px;
-                            }
                         </style>
 
                         <header>
                             <h1 class="title">${title}</h1>
                         </header>
 
-                        <section class="introduction">
+                        <section class="section">
                             <h2>Introduction</h2>
                             <p>Provide a compelling introduction summarizing the topic.</p>
                         </section>
 
-                        <section class="key-insights">
-                            <h2>Key Insights</h2>
+                        <section class="section">
+                            <h2>Trend Breakdown</h2>
                             <ul>
-                                <li>First key point related to ${title}</li>
-                                <li>Second key point with supporting data</li>
+                                ${relatedKeywords.map((keyword) => `<li>${keyword}</li>`).join("")}
                             </ul>
                         </section>
 
-                        <section class="detailed-analysis">
-                            <h2>Detailed Analysis</h2>
-                            <p>Explain the topic in depth with examples, data, and key facts.</p>
-                            <blockquote>"A deep dive into ${title} and its real-world significance."</blockquote>
+                        <section class="section">
+                            <h2>In-Depth Analysis</h2>
+                            <p>Explain why this topic is trending, key events, and industry insights.</p>
                         </section>
 
-                        <section class="real-world-impact">
+                        <section class="section">
                             <h2>Real-World Impact</h2>
-                            <p>Describe how ${title} affects industries, businesses, or consumers.</p>
+                            <p>How this trend affects businesses, consumers, or industries.</p>
                         </section>
 
-                        <section class="conclusion">
+                        <section class="section">
                             <h2>Conclusion</h2>
-                            <p>Summarize the key takeaways and any future implications.</p>
+                            <p>Summarize key takeaways and any future implications.</p>
                         </section>
                     </article>
                 ` }]
@@ -131,8 +141,7 @@ async function generateFullArticle(title) {
         }
 
         const articleHTML = result.response.candidates[0].content.parts[0].text;
-        articleCache.set(title, articleHTML); // ✅ Store in cache
-
+        articleCache.set(title, articleHTML);
         console.log("✅ AI-generated full article successfully!");
         return articleHTML;
     } catch (error) {
@@ -141,35 +150,29 @@ async function generateFullArticle(title) {
     }
 }
 
-
-
 // ✅ Fetch Google Trends & Generate Full Articles
-app.get("/trends", async (req, res) => {
+app.get('/trends', async (req, res) => {
     try {
-        const { data } = await axios.get("https://trends.google.com/trending/rss?geo=IN");
-        xml2js.parseString(data, async (err, result) => {
-            if (err) return res.status(500).json({ error: "Error parsing XML" });
+        const { limit = 5 } = req.query;
+        
+        const response = await axios.get('https://trends.google.com/trending/rss?geo=IN');
+        const parsedTrends = await parseTrends(response.data);
 
-            const trends = await Promise.all(
-                result.rss.channel[0].item.map(async (item) => {
-                    const fullArticle = await generateFullArticle(item.title[0]);
+        // ✅ Shuffle and Get Required Number of Topics
+        const shuffledTrends = parsedTrends.sort(() => 0.5 - Math.random()).slice(0, parseInt(limit));
 
-                    return {
-                        title: item.title[0],
-                        link: item.link[0],
-                        image: item["ht:picture"] ? item["ht:picture"][0] : null,
-                        article: fullArticle,
-                    };
-                })
-            );
+        // ✅ Generate AI Articles for Each Trend
+        for (let trend of shuffledTrends) {
+            trend.article = await generateFullArticle(trend.title, trend.relatedKeywords);
+        }
 
-            res.json(trends);
-        });
+        res.json(shuffledTrends);
     } catch (error) {
-        console.error("❌ Error fetching trends:", error);
-        res.status(500).json({ error: "Failed to fetch trends" });
+        console.error('❌ Error fetching trends:', error);
+        res.status(500).json({ error: 'Failed to fetch trends' });
     }
 });
 
+// ✅ Start the Server
 const PORT = 5000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

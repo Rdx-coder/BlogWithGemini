@@ -3,38 +3,34 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
+  scroll-behavior: smooth;
 }
 
-/* ✅ Light Mode (Default) */
+/* ✅ Light Mode */
 body {
-  background-color: #f9f9f9;
+  background-color: #f4f6f9;
   color: #333;
   line-height: 1.6;
-  padding: 0;
-  margin: 0;
+  transition: all 0.3s ease-in-out;
 }
 
 /* ✅ Dark Mode */
 body.dark {
-  background-color: #121212;
+  background-color: #1e1e1e;
   color: #fff;
 }
 
 /* ✅ Main Container */
 .container {
-  display: flex;
   max-width: 1200px;
   margin: 20px auto;
-  background: white;
+  padding: 20px;
   border-radius: 10px;
+  background: #fff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-}
-
-.container.dark {
-  background: #181818;
-  color: white;
+  transition: all 0.3s ease-in-out;
 }
 
 /* ✅ Header */
@@ -42,27 +38,24 @@ body.dark {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  padding: 15px 25px;
   background: #0078ff;
-  color: white;
+  color: #fff;
   border-radius: 10px;
-}
-
-.header h1 {
   font-size: 24px;
   font-weight: bold;
 }
 
-/* ✅ Dark Mode Toggle */
+/* ✅ Dark Mode Toggle Button */
 .toggle-btn {
-  padding: 8px 12px;
+  padding: 10px;
   font-size: 14px;
   border: none;
-  cursor: pointer;
   background: #0056b3;
-  color: white;
+  color: #fff;
   border-radius: 5px;
-  transition: 0.3s ease-in-out;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
 .toggle-btn:hover {
@@ -73,9 +66,10 @@ body.dark {
 .sidebar {
   flex: 1;
   background: #24292e;
-  color: white;
+  color: #fff;
   padding: 25px;
   min-height: 100vh;
+  border-radius: 10px;
 }
 
 .sidebar h2 {
@@ -95,9 +89,9 @@ body.dark {
   background: #2d333b;
   border-radius: 5px;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
-  font-size: 16px;
   text-align: center;
+  font-size: 16px;
+  transition: background 0.3s;
 }
 
 .sidebar ul li:hover {
@@ -121,21 +115,21 @@ body.dark {
   border: 2px solid #ddd;
   border-radius: 8px;
   outline: none;
-  transition: 0.3s ease-in-out;
+  transition: border-color 0.3s;
 }
 
 .search-bar:focus {
   border-color: #0078ff;
 }
 
-/* ✅ Trending Articles (Card Style) */
+/* ✅ Trend Item (Card Style) */
 .trend-item {
-  background: white;
+  background: #fff;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s;
   cursor: pointer;
 }
 
@@ -143,64 +137,72 @@ body.dark {
   transform: translateY(-5px);
 }
 
-.container.dark .trend-item {
-  background: #1f1f1f;
-}
-
 .trend-item h2 {
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 10px;
   color: #0078ff;
   font-weight: bold;
+  text-align: center;
 }
 
-.trend-item h2 a {
-  text-decoration: none;
-  color: #0078ff;
-  transition: color 0.3s;
-}
-
-.trend-item h2 a:hover {
-  color: #0056b3;
-}
-
-/* ✅ Image Styling */
 .trend-item img {
   width: 100%;
   height: auto;
   border-radius: 10px;
-  margin: 15px 0;
+  margin-top: 15px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* ✅ Article Summary */
-.trend-item p {
+/* ✅ Trend Breakdown */
+.trend-breakdown {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.trend-breakdown h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #0078ff;
+}
+
+.trend-breakdown ul {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.trend-breakdown ul li {
   font-size: 16px;
-  margin-top: 10px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* ✅ Article Content */
+.article-content {
+  padding: 20px;
+  font-size: 18px;
   color: #444;
-  line-height: 1.6;
+  background: #f9f9f9;
+  border-left: 5px solid #0078ff;
+  border-radius: 8px;
+  margin-top: 15px;
 }
 
-.container.dark .trend-item p {
-  color: #ddd;
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  color: #222;
+  border-bottom: 3px solid #0078ff;
+  padding-bottom: 6px;
+  margin-bottom: 15px;
 }
 
-/* ✅ Read More Button */
-.read-more {
-  background: #0078ff;
-  color: white;
-  padding: 10px 14px;
-  font-size: 15px;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.3s ease-in-out;
-  margin-top: 10px;
-  display: inline-block;
-}
-
-.read-more:hover {
-  background: #0056b3;
+.article-content p {
+  font-size: 18px;
+  color: #444;
+  margin-bottom: 15px;
+  text-align: justify;
 }
 
 /* ✅ Load More Button */
@@ -213,13 +215,18 @@ body.dark {
   border: none;
   cursor: pointer;
   background: #0078ff;
-  color: white;
+  color: #fff;
   border-radius: 6px;
-  transition: 0.3s ease-in-out;
+  transition: background 0.3s;
 }
 
 .load-more:hover {
   background: #0056b3;
+}
+
+.load-more:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 /* ✅ Newsletter Subscription */
@@ -237,11 +244,13 @@ body.dark {
 }
 
 .newsletter input {
-  width: 80%;
+  width: 90%;
   padding: 12px;
   margin-top: 10px;
-  border-radius: 8px;
   border: 2px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
 .newsletter input:focus {
@@ -253,11 +262,11 @@ body.dark {
   padding: 12px 16px;
   font-size: 16px;
   background: #0078ff;
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
+  transition: background 0.3s;
 }
 
 .newsletter button:hover {
@@ -267,12 +276,12 @@ body.dark {
 /* ✅ Animations */
 @keyframes fadeIn {
   from {
-      opacity: 0;
-      transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -283,44 +292,41 @@ body.dark {
 /* ✅ Responsive Design */
 @media (max-width: 768px) {
   .container {
-      flex-direction: column;
-  }
-
-  .main-content {
-      padding: 20px;
-  }
-
-  .sidebar {
-      text-align: center;
-  }
-
-  .sidebar ul {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-  }
-
-  .sidebar ul li {
-      margin: 5px;
-      padding: 10px;
-      font-size: 14px;
-  }
-}
-/* ✅ Load More Button */
-.load-more {
-    display: block;
+    flex-direction: column;
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    margin-top: 20px;
-    border: none;
-    cursor: pointer;
-    background: #0078ff;
-    color: white;
-    border-radius: 6px;
-    transition: 0.3s ease-in-out;
-}
-
-.load-more:hover {
-    background: #0056b3;
+    margin: 0;
+    padding: 0;
+  }
+  .main-content {
+    padding: 15px;
+  }
+  .sidebar {
+    padding: 15px;
+    min-height: auto;
+    text-align: center;
+  }
+  .sidebar ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .sidebar ul li {
+    margin: 5px;
+    padding: 10px;
+    font-size: 14px;
+    width: 45%;
+  }
+  .trend-item {
+    padding: 15px;
+  }
+  .trend-item h2 {
+    font-size: 20px;
+  }
+  .trend-item p, .article-content p {
+    font-size: 14px;
+  }
+  .load-more {
+    font-size: 14px;
+    padding: 10px;
+  }
 }
